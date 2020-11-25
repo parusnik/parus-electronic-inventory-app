@@ -7,7 +7,7 @@ as
   l_content         clob;
   l_elinventory_rn  pkg_std.tref;
   l_inventory_rn    pkg_std.tref;
-  l_elinventory     elinvobject%rowtype;
+  l_elinvobject     elinvobject%rowtype;
   l_invperson_rn    pkg_std.tstring;
 
   function get_inventory_barcode_rn(ncompany in number, sbarcode in varchar2) return number
@@ -73,7 +73,7 @@ begin
     loop
       if (rec.DocumentId is not null) then
         l_inventory_rn := get_inventory_barcode_rn(ncompany, rec.ItemSku);
-        l_elinventory := get_elinvobject(ncompany, rec.DocumentId, l_inventory_rn);
+        l_elinvobject := get_elinvobject(ncompany, rec.DocumentId, l_inventory_rn);
 
         find_invpersons_code(1, 1, ncompany, rec.InventoringPerson, l_invperson_rn);
 
@@ -81,8 +81,8 @@ begin
           p_elinvobject_base_update
           (
             ncompany      => ncompany,
-            nrn           => l_elinventory.rn,
-            dunload_date  => l_elinventory.unload_date,
+            nrn           => l_elinvobject.rn,
+            dunload_date  => l_elinvobject.unload_date,
             dinv_date     => to_date(rec.DateTimeOfInventory, 'yyyymmdd hh24miss'),
             ninvpersons   => l_invperson_rn,
             sbarcode      => rec.ActualLocationSku,
