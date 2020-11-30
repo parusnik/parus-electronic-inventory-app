@@ -47,7 +47,7 @@ begin
        and t.rn = sl.document
   ) 
   loop
-    l_row := l_elinventory || ';' || rec.LocationName || ';' || rec.LocationSku || ';' || cr;
+    l_row := l_elinventory || ';' || convert(rec.LocationName, 'UTF8', 'CL8MSWIN1251') || ';' || convert(rec.LocationSku, 'UTF8', 'CL8MSWIN1251') || ';' || cr;
     dbms_lob.writeappend(l_content, length(l_row), l_row);
   end loop;
 
