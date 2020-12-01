@@ -4,7 +4,7 @@
 
 ## Установка
 
-Скомпилировать процедуру [p_belinventory_csvimp](..\src\p_belinventory_csvimp.sql).
+Скомпилировать процедуру [p_belinventory_csvimp](../src/p_belinventory_csvimp.sql).
 
 Добавить в Парус-Бюджет 8 пользовательскую процедуру:
 

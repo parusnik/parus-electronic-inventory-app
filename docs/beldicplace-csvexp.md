@@ -4,7 +4,7 @@
 
 ## Установка
 
-Скомпилировать процедуру [p_beldicplace_csvexp](..\src\p_beldicplace_csvexp.sql).
+Скомпилировать процедуру [p_beldicplace_csvexp](../src/p_beldicplace_csvexp.sql).
 
 Добавить в Парус-Бюджет 8 пользовательскую процедуру:
 
