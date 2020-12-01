@@ -13,7 +13,7 @@
 * [Экспорт инвентарных объектов](docs/belinventory-csvexp.md)
 * [Импорт результатов инвентаризации](docs/belinventory-csvimp.md)
 
-Так же для корректной работы требуется предварительная установка пакета [lob2table](addons\lob2table.sql).
+Так же для корректной работы требуется предварительная установка пакета [lob2table](addons/lob2table.sql).
 
 ## Мобильное приложение
 
@@ -23,6 +23,4 @@
 
 Мобильное приложение позволяет производить инвентаризацию объектов выгруженных из Парус-Бюджет 8, а так же сформировать файл экспорта результатов инвентаризации с последующим импортом в Парус.
 
-<img src="docs/images/logo.png" Width="210" /> <img src="docs/images/signin.png" Width="210" /> <img src="docs/images/menu.png" Width="210" /> <img src="docs/images/home.png" Width="210" />
-<br/>
-<img src="docs/images/locations.png" Width="210" /> <img src="docs/images/items.png" Width="210" /> <img src="docs/images/user.png" Width="210" /> <img src="docs/images/import_export.png" Width="210" /> 
+<img src="docs/images/logo.png" Width="210" /> <img src="docs/images/signin.png" Width="210" /> <img src="docs/images/menu.png" Width="210" /> <img src="docs/images/home.png" Width="210" /> <img src="docs/images/locations.png" Width="210" /> <img src="docs/images/items.png" Width="210" /> <img src="docs/images/user.png" Width="210" /> <img src="docs/images/import_export.png" Width="210" /> 
