@@ -4,7 +4,7 @@
 
 ## Установка
 
-Скомпилировать процедуру `p_belinvpersons_csvexp`.
+Скомпилировать процедуру [p_belinvpersons_csvexp](..\src\p_belinvpersons_csvexp.sql).
 
 Добавить в Парус-Бюджет 8 пользовательскую процедуру:
 

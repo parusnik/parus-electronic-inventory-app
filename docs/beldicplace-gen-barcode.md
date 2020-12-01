@@ -4,7 +4,7 @@
 
 ## Установка
 
-Скомпилировать процедуру `p_beldicplace_gen_barcode`.
+Скомпилировать процедуру [p_beldicplace_gen_barcode](..\src\p_beldicplace_gen_barcode.sql).
 
 Добавить в Парус-Бюджет 8 пользовательскую процедуру:
 

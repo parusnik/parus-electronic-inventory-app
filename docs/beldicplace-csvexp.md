@@ -4,7 +4,7 @@
 
 ## Установка
 
-Скомпилировать процедуру `p_beldicplace_csvexp`.
+Скомпилировать процедуру [p_beldicplace_csvexp](..\src\p_beldicplace_csvexp.sql).
 
 Добавить в Парус-Бюджет 8 пользовательскую процедуру:
 
@@ -22,4 +22,4 @@
 |4|SDOC_PREF|Строка (varchar2)|Входной (in)|SDOC_PREF|Нет|Нет|Нет||||||
 |5|SDOC_TYPE|Строка (varchar2)|Входной (in)|SDOC_TYPE|Нет|Нет|Нет||||||
 
-Добавить пользовательскую форму и загрузить ее описание из [p_beldicplace_csvexp.xml](forms/p_beldicplace_csvexp.xml).
+Добавить пользовательскую форму и загрузить ее описание из [p_beldicplace_csvexp.xml](../forms/p_beldicplace_csvexp.xml).
