@@ -26,7 +26,7 @@ begin
            frp.agnabbr                                                                                                           as UserName,
            frp.agnfirstname                                                                                                      as FirstName,
            frp.agnfamilyname                                                                                                     as LastName,
-           decode(ei.invpack, null, o.place_mnemo, op.place_mnemo)                                                               as LocationName,
+           decode(ei.invpack, null, o.place_name, op.place_name)                                                                 as LocationName,
            decode(ei.invpack, null, o.barcode, op.barcode)                                                                       as LocationSku
       from selectlist sl,
            elinventory t,
