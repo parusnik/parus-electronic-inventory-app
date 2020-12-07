@@ -81,7 +81,7 @@ begin
 
         find_invpersons_code(1, 1, ncompany, rec.InventoringPerson, l_invperson_rn);
 
-        if (l_invperson_rn is not null) then
+        if (l_invperson_rn is null) then
           p_msgjournal_base_insert(nident, 1, 'Инвентаризирующее лицо "' || rec.InventoringPerson || '" не найдено в организации "' || l_company || '".', l_rn);
         end if;
 
