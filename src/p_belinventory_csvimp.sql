@@ -9,6 +9,8 @@ as
   l_inventory_rn    pkg_std.tref;
   l_elinvobject     elinvobject%rowtype;
   l_invperson_rn    pkg_std.tstring;
+  l_company         companies.name%type;
+  l_rn              pkg_std.tref;
 
   function get_inventory_barcode_rn(ncompany in number, sbarcode in varchar2) return number
   as
@@ -54,6 +56,8 @@ as
     return l_result;
   end;
 begin
+  l_company := get_company_name(0, ncompany);
+
   for file in 
   (
     select data from file_buffer where ident = nident
@@ -78,17 +82,19 @@ begin
         find_invpersons_code(1, 1, ncompany, rec.InventoringPerson, l_invperson_rn);
 
         if (l_invperson_rn is not null) then
-          p_elinvobject_base_update
-          (
-            ncompany      => ncompany,
-            nrn           => l_elinvobject.rn,
-            dunload_date  => l_elinvobject.unload_date,
-            dinv_date     => to_date(rec.DateTimeOfInventory, 'yyyymmdd hh24miss'),
-            ninvpersons   => l_invperson_rn,
-            sbarcode      => rec.ActualLocationSku,
-            nis_loaded    => 0
-          );
+          p_msgjournal_base_insert(nident, 1, 'Инвентаризирующее лицо "' || rec.InventoringPerson || '" не найдено в организации "' || l_company || '".', l_rn);
         end if;
+
+        p_elinvobject_base_update
+        (
+          ncompany      => ncompany,
+          nrn           => l_elinvobject.rn,
+          dunload_date  => l_elinvobject.unload_date,
+          dinv_date     => to_date(rec.DateTimeOfInventory, 'yyyymmdd hh24miss'),
+          ninvpersons   => l_invperson_rn,
+          sbarcode      => rec.ActualLocationSku,
+          nis_loaded    => 0
+        );
       end if;
     end loop;
   end loop;
