@@ -4,36 +4,12 @@ create or replace procedure p_belinventory_csvimp
   nident            in number
 )
 as
-  l_content         clob;
-  l_elinventory_rn  pkg_std.tref;
-  l_inventory_rn    pkg_std.tref;
   l_elinvobject     elinvobject%rowtype;
   l_invperson_rn    pkg_std.tstring;
   l_company         companies.name%type;
   l_rn              pkg_std.tref;
 
-  function get_inventory_barcode_rn(ncompany in number, sbarcode in varchar2) return number
-  as
-    l_result    pkg_std.tref;
-  begin
-    /* считывание записи */
-    begin
-      select t.rn
-        into l_result
-        from inventory t
-       where t.company = ncompany
-         and t.barcode = sbarcode;
-    exception
-      when others then
-        pkg_state.diagnostics_stacked;
-        p_exception(0, 'При определении инвентарной карточки по штрих-коду "%s" произошла ошибка "%s".', pkg_state.sql_errt(pkg_state.sql_code(), pkg_state.sql_errm()));
-    end;
-
-    /* возврат результата */
-    return l_result;
-  end;
-
-  function get_elinvobject(ncompany in number, ndocument in number, ninventory in number) return elinvobject%rowtype
+  function get_elinvobject(ncompany in number, ndocument in number, sbarcode in varchar2) return elinvobject%rowtype
   as
     l_result    elinvobject%rowtype;
     l_tmp       pkg_std.tref;
@@ -43,9 +19,15 @@ as
       select t.*
         into l_result
         from elinvobject t
+               left join invpack p 
+                 left join invpackpos ps on ps.prn = p.rn
+               on p.rn = t.invpack
+               left join invsubst u on u.rn = t.invsubst,
+             inventory i
        where t.company = ncompany
          and t.prn = ndocument
-         and t.inventory = ninventory;
+         and t.inventory = i.rn
+         and decode(ps.rn, null, decode(t.invpack, null, decode(t.invsubst, null, i.barcode, u.barcode), p.barcode), ps.barcode) = sbarcode;
     exception
       when others then
         pkg_state.diagnostics_stacked;
@@ -76,8 +58,7 @@ begin
     )
     loop
       if (rec.DocumentId is not null) then
-        l_inventory_rn := get_inventory_barcode_rn(ncompany, rec.ItemSku);
-        l_elinvobject := get_elinvobject(ncompany, rec.DocumentId, l_inventory_rn);
+        l_elinvobject := get_elinvobject(ncompany, rec.DocumentId, rec.ItemSku);
 
         find_invpersons_code(1, 1, ncompany, rec.InventoringPerson, l_invperson_rn);
 
