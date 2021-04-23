@@ -74,7 +74,7 @@ begin
           dinv_date     => to_date(rec.DateTimeOfInventory, 'yyyymmdd hh24miss'),
           ninvpersons   => l_invperson_rn,
           sbarcode      => rec.ActualLocationSku,
-          nis_loaded    => 1
+          nis_loaded    => 0
         );
       end if;
     end loop;
