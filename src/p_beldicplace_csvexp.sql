@@ -1,68 +1,69 @@
-create or replace procedure p_beldicplace_csvexp
+create or replace procedure P_BELDICPLACE_CSVEXP
 (
-  ncompany      in number,
-  nident        in number,
-  sdoc_numb     in varchar2,
-  sdoc_pref     in varchar2,
-  sdoc_type     in varchar2
+  nCOMPANY          in number,
+  nIDENT            in number,
+  nPROCESS          in number,
+  sDOC_NUMB         in varchar2,
+  sDOC_PREF         in varchar2,
+  sDOC_TYPE         in varchar2
 )
 as
-  l_headers     pkg_std.tstring;
-  l_row         pkg_std.tlstring;
-  l_content     clob;
-  l_filename    pkg_std.tstring;
-  l_doctype     pkg_std.tref;
-  l_elinventory pkg_std.tref;
+  sHEADERS          PKG_STD.tSTRING;
+  sROW              PKG_STD.tLSTRING;
+  cCONTENT          clob;
+  sFILENAME         PKG_STD.tSTRING;
+  nDOCTYPE          PKG_STD.tREF;
+  nELINVENTORY      PKG_STD.tREF;
 begin
   /* определение типа документа */
-  find_doctypes_code_ex(0, 0, ncompany, sdoc_type, l_doctype);
+  FIND_DOCTYPES_CODE_EX(0, 0, nCOMPANY, sDOC_TYPE, nDOCTYPE);
 
   /* определение документа инвентаризации */
   begin
-    select rn
-      into l_elinventory
-      from elinventory
-     where company = ncompany
-       and doc_numb = sdoc_numb
-       and doc_pref = sdoc_pref
-       and doc_type = l_doctype;
+    select RN
+      into nELINVENTORY
+      from ELINVENTORY
+     where COMPANY = nCOMPANY
+       and DOC_NUMB = trimnumb(sDOC_NUMB, 10)
+       and DOC_PREF = trimnumb(sDOC_PREF, 10)
+       and DOC_TYPE = nDOCTYPE;
   exception
-    when no_data_found then
-      p_exception(0, 'Не удалось определить идентификатор для документа электронной инвентаризации "%s"', pkg_document.make_number(sdoc_type, sdoc_pref, sdoc_numb));
+    when NO_DATA_FOUND then
+      P_EXCEPTION(0, 'Не удалось определить идентификатор для документа электронной инвентаризации "%s"', PKG_DOCUMENT.MAKE_NUMBER(sDOC_TYPE, sDOC_PREF, sDOC_NUMB));
   end;
 
-  dbms_lob.createtemporary(l_content, true);
+  DBMS_LOB.CREATETEMPORARY(cCONTENT, true);
 
-  l_headers := 'DocumentId;LocationName;LocationSku;' || cr;
-  dbms_lob.writeappend(l_content, length(l_headers), l_headers);
+  sHEADERS := 'DocumentId;LocationName;LocationSku;' || CR;
+  dbms_lob.writeappend(cCONTENT, length(sHEADERS), sHEADERS);
 
-  for rec in 
+  for REC in 
   (
-    select t.place_name as LocationName,
-           t.barcode    as LocationSku
-      from dicplace t, 
-           selectlist sl
-     where sl.ident = nident
-       and sl.unitcode = 'ObjPlace'
-       and t.rn = sl.document
+    select T.PLACE_NAME as LocationName,
+           T.BARCODE    as LocationSku
+      from DICPLACE T, 
+           SELECTLIST SL
+     where SL.IDENT = nIDENT
+       and SL.UNITCODE = 'ObjPlace'
+       and T.RN = SL.DOCUMENT
   ) 
   loop
-    l_row := l_elinventory || ';' || convert(rec.LocationName, 'UTF8', 'CL8MSWIN1251') || ';' || convert(rec.LocationSku, 'UTF8', 'CL8MSWIN1251') || ';' || cr;
-    dbms_lob.writeappend(l_content, length(l_row), l_row);
+    sROW := nELINVENTORY || ';' || REC.LocationName || ';' || REC.LocationSku || ';' || CR;
+    dbms_lob.writeappend(cCONTENT, length(sROW), sROW);
   end loop;
 
-  l_filename := 'Locations.csv';
+  sFILENAME := 'Locations.csv';
 
-  insert into file_buffer (ident, authid, filename, data)
-  values (nident, utilizer, l_filename, l_content);
+  insert into FILE_BUFFER (IDENT, FILENAME, DATA)
+  values (nPROCESS, sFILENAME, cCONTENT);
 
-  dbms_lob.freetemporary(l_content);
+  dbms_lob.freetemporary(cCONTENT);
 exception
-  when others then
-    dbms_lob.freetemporary(l_content);
+  when OTHERS then
+    dbms_lob.freetemporary(cCONTENT);
 end;
 /
 
-show errors procedure p_beldicplace_csvexp;
+show errors procedure P_BELDICPLACE_CSVEXP;
 
-grant execute on p_beldicplace_csvexp to public;
+grant execute on P_BELDICPLACE_CSVEXP to PUBLIC;

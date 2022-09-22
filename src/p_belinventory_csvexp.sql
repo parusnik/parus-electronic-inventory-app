@@ -1,80 +1,81 @@
-create or replace procedure p_belinventory_csvexp
+create or replace procedure P_BELINVENTORY_CSVEXP
 (
-  ncompany      in number,
-  nident        in number
+  nCOMPANY          in number,
+  nIDENT            in number,
+  nPROCESS          in number
 )
 as
-  l_headers     pkg_std.tstring;
-  l_row         pkg_std.tlstring;
-  l_content     clob;
-  l_date        date;
-  l_filename    pkg_std.tstring;
+  sHEADERS          PKG_STD.tSTRING;
+  sROW              PKG_STD.tLSTRING;
+  cCONTENT          clob;
+  dDATE             date;
+  sFILENAME         PKG_STD.tSTRING;
 begin
-  l_date := sysdate;
+  dDATE := sysdate;
 
-  dbms_lob.createtemporary(l_content, true);
+  dbms_lob.createtemporary(cCONTENT, true);
 
-  l_headers := 'DocumentId;ItemName;ItemSku;UserName;FirstName;LastName;LocationName;LocationSku;' || cr;
-  dbms_lob.writeappend(l_content, length(l_headers), l_headers);
+  sHEADERS := 'DocumentId;ItemName;ItemSku;UserName;FirstName;LastName;LocationName;LocationSku;' || CR;
+  dbms_lob.writeappend(cCONTENT, length(sHEADERS), sHEADERS);
 
-  for rec in 
+  for REC in 
   (
-    select t.rn                                                                                                                  as DocumentId, 
-           ei.rn                                                                                                                 as ObjectRn,
-           n.nomen_name                                                                                                          as ItemName,
-           decode(ps.rn, null, decode(ei.invpack, null, decode(ei.invsubst, null, i.barcode, u.barcode), p.barcode), ps.barcode) as ItemSku,
-           frp.agnabbr                                                                                                           as UserName,
-           frp.agnfirstname                                                                                                      as FirstName,
-           frp.agnfamilyname                                                                                                     as LastName,
-           decode(ei.invpack, null, o.place_name, op.place_name)                                                                 as LocationName,
-           decode(ei.invpack, null, o.barcode, op.barcode)                                                                       as LocationSku
-      from selectlist sl,
-           elinventory t,
-           elinvobject ei 
-             inner join inventory i
-               inner join dicnomns n on n.rn = i.nomenclature
-               inner join agnlist frp on frp.rn = i.executive
-                 left join dicplace o on o.rn = i.object_place
-               on i.rn = ei.inventory
-               left join invpack p
-                 left join invpackpos ps on ps.prn = p.rn
-                 left join dicplace op on op.rn = p.object_place
-               on p.rn = ei.invpack
-               left join invsubst u on u.rn = ei.invsubst
-     where sl.ident = nident 
-       and t.rn = sl.document
-       and t.company = ncompany
-       and ei.prn = t.rn
+    select T.RN                                                                                                                  as DocumentId, 
+           EI.RN                                                                                                                 as ObjectRn,
+           N.NOMEN_NAME                                                                                                          as ItemName,
+           decode(PS.RN, null, decode(EI.INVPACK, null, decode(EI.INVSUBST, null, I.BARCODE, U.BARCODE), P.BARCODE), PS.BARCODE) as ItemSku,
+           FRP.AGNABBR                                                                                                           as UserName,
+           FRP.AGNFIRSTNAME                                                                                                      as FirstName,
+           FRP.AGNFAMILYNAME                                                                                                     as LastName,
+           decode(EI.INVPACK, null, O.PLACE_NAME, OP.PLACE_NAME)                                                                 as LocationName,
+           decode(EI.INVPACK, null, O.BARCODE, OP.BARCODE)                                                                       as LocationSku
+      from SELECTLIST SL,
+           ELINVENTORY T,
+           ELINVOBJECT EI 
+             inner join INVENTORY I
+               inner join DICNOMNS N on N.RN = I.NOMENCLATURE
+               inner join AGNLIST FRP on FRP.RN = I.EXECUTIVE
+                 left join DICPLACE O on O.RN = I.OBJECT_PLACE
+               on I.RN = EI.INVENTORY
+               left join INVPACK P
+                 left join INVPACKPOS PS on PS.PRN = P.RN
+                 left join DICPLACE OP on OP.RN = P.OBJECT_PLACE
+               on P.RN = EI.INVPACK
+               left join INVSUBST U on U.RN = EI.INVSUBST
+     where SL.IDENT = nIDENT 
+       and T.RN = SL.DOCUMENT
+       and T.COMPANY = nCOMPANY
+       and EI.PRN = T.RN
   )
   loop 
-    l_row := rec.DocumentId || ';' ||
-        convert(rec.ItemName, 'UTF8', 'CL8MSWIN1251') || ';' || 
-        convert(rec.ItemSku, 'UTF8', 'CL8MSWIN1251') || ';' || 
-        convert(rec.UserName, 'UTF8', 'CL8MSWIN1251') || ';' || 
-        convert(rec.FirstName, 'UTF8', 'CL8MSWIN1251') || ';' ||
-        convert(rec.LastName, 'UTF8', 'CL8MSWIN1251') || ';' || 
-        convert(rec.LocationName, 'UTF8', 'CL8MSWIN1251') || ';' || 
-        convert(rec.LocationSku, 'UTF8', 'CL8MSWIN1251') || ';' ||
-        cr;
-    dbms_lob.writeappend(l_content, length(l_row), l_row);
+    sROW := REC.DocumentId || ';' ||
+        REC.ItemName || ';' || 
+        REC.ItemSku || ';' || 
+        REC.UserName || ';' || 
+        REC.FirstName || ';' ||
+        REC.LastName || ';' || 
+        REC.LocationName || ';' || 
+        REC.LocationSku || ';' ||
+        CR;
+    dbms_lob.writeappend(cCONTENT, length(sROW), sROW);
 
-    update elinvobject
-       set unload_date = l_date
-     where rn = rec.ObjectRn;
+    update ELINVOBJECT
+       set UNLOAD_DATE = dDATE
+     where RN = REC.ObjectRn;
   end loop;
 
-  l_filename := 'Objects.csv';
+  sFILENAME := 'Objects.csv';
 
-  insert into file_buffer (ident, authid, filename, data)
-  values (nident, utilizer, l_filename, l_content);
+  insert into FILE_BUFFER (IDENT, FILENAME, DATA)
+  values (nPROCESS, sFILENAME, cCONTENT);
 
-  dbms_lob.freetemporary(l_content);
+  dbms_lob.freetemporary(cCONTENT);
 exception
-  when others then
-    dbms_lob.freetemporary(l_content);
+  when OTHERS then
+    dbms_lob.freetemporary(cCONTENT);
 end;
 /
 
-show error procedure p_belinventory_csvexp;
+show error procedure P_BELINVENTORY_CSVEXP;
 
-grant execute on p_belinventory_csvexp to public;
+grant execute on P_BELINVENTORY_CSVEXP to PUBLIC;

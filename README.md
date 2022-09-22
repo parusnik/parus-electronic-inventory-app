@@ -1,4 +1,4 @@
-# Parus Electronic Inventory for Oracle
+# Parus Electronic Inventory
 
 [![Join the chat at https://gitter.im/parussmartinventory/parussmartinventory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/parussmartinventory/parussmartinventory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -9,13 +9,14 @@
 В данном репозитории содержатся вспомогательные объекты Парус-Бюджет 8 для проведения электронной инвентаризации.
 
 ### Расширения для Парус-Бюджет 8
-* [Массовое формирование штрих-кода](docs/beldicplace-gen-barcode.md)
-* [Экспорт местонахождений инвентарных объектов](docs/beldicplace-csvexp.md)
-* [Экспорт инвентаризирующих лиц](docs/belinvpersons-csvexp.md)
-* [Экспорт инвентарных объектов](docs/belinventory-csvexp.md)
-* [Импорт результатов инвентаризации](docs/belinventory-csvimp.md)
+* [Местонахождение инвентарных объектов: Сгенерировать штрих-код](src/p_beldicplace_gen_barcode.sql)
+* [Местонахождение инвентарных объектов: Экспорт в Parus Smart Inventory](src/p_beldicplace_csvexp.sql)
+* [Инвентаризирующие лица: Экспорт в Parus Smart Inventory](src/p_belinvpersons_csvexp.sql)
+* [Инвентарные объекты: Экспорт в Parus Smart Inventory](src/p_belinventory_csvexp.sql)
+* [Электронные инвентаризации: Импорт из Parus Smart Inventory](src/p_belinventory_csvimp.sql)
+* [Электронные инвентаризации: Импорт из Parus Smart Inventory (Postgres)](src/p_belinventory_csvimp.pgsql)
 
-Так же для корректной работы требуется предварительная установка пакета [lob2table](addons/lob2table.sql).
+Так же для корректной работы в СУБД Oracle Database требуется предварительная установка пакета [lob2table](addons/lob2table.sql).
 
 ## Мобильное приложение
 

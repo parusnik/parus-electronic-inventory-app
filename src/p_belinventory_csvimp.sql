@@ -1,80 +1,70 @@
-create or replace procedure p_belinventory_csvimp
+create or replace procedure P_BELINVENTORY_CSVIMP
 (
-  ncompany          in number,
-  nident            in number
+  nCOMPANY          in number,
+  nIDENT            in number
 )
 as
-  l_elinvobject     elinvobject%rowtype;
-  l_invperson_rn    pkg_std.tstring;
-  l_company         companies.name%type;
-  l_rn              pkg_std.tref;
-
-  function get_elinvobject(ncompany in number, ndocument in number, sbarcode in varchar2) return elinvobject%rowtype
-  as
-    l_result    elinvobject%rowtype;
-    l_tmp       pkg_std.tref;
-  begin
-    /* считывание записи */
-    begin
-      select t.*
-        into l_result
-        from elinvobject t
-               left join invpack p 
-                 left join invpackpos ps on ps.prn = p.rn
-               on p.rn = t.invpack
-               left join invsubst u on u.rn = t.invsubst,
-             inventory i
-       where t.company = ncompany
-         and t.prn = ndocument
-         and t.inventory = i.rn
-         and decode(ps.rn, null, decode(t.invpack, null, decode(t.invsubst, null, i.barcode, u.barcode), p.barcode), ps.barcode) = sbarcode;
-    exception
-      when others then
-        pkg_state.diagnostics_stacked;
-        p_exception(0, 'Ошибка определения записи электронной инвентаризации "%s".', pkg_state.sql_errt(pkg_state.sql_code(), pkg_state.sql_errm()));
-    end;
-
-    /* возврат результата */
-    return l_result;
-  end;
+  rELINVOBJECT      ELINVOBJECT%rowtype;
+  nINVPERSONS       PKG_STD.tSTRING;
+  sCOMPANY_NAME     COMPANIES.NAME%type;
+  nRN               PKG_STD.tREF;
 begin
-  l_company := get_company_name(0, ncompany);
+  sCOMPANY_NAME := GET_COMPANY_NAME(0, nCOMPANY);
 
-  for file in 
+  for FILE in 
   (
-    select data from file_buffer where ident = nident
+    select DATA from FILE_BUFFER where IDENT = nIDENT
   ) 
   loop
-    for rec in 
+    for REC in 
     (
       select to_number(regexp_replace(t.column1,'[^[[:digit:]]]*')) as DocumentId,
-             convert(t.column2, 'CL8MSWIN1251', 'UTF8')             as ItemName,
-             convert(t.column3, 'CL8MSWIN1251', 'UTF8')             as ItemSku,
-             convert(t.column4, 'CL8MSWIN1251', 'UTF8')             as InventoringPerson,
-             convert(t.column5, 'CL8MSWIN1251', 'UTF8')             as ActualLocationSku,
-             convert(t.column6, 'CL8MSWIN1251', 'UTF8')             as DateTimeOfInventory
-        from table(lob2table.separatedColumns(file.data, chr(13), ';')) t
-       where regexp_replace(t.column1,'[^[[:digit:]]]*') != 'DocumentId' or t.column1 != null
+             t.column2                                              as ItemName,
+             t.column3                                              as ItemSku,
+             t.column4                                              as InventoringPerson,
+             t.column5                                              as ActualLocationSku,
+             t.column6                                              as DateTimeOfInventory
+        from table(lob2table.separatedColumns(FILE.DATA, CHR(13), ';')) t
+       where regexp_replace(T.COLUMN1,'[^[[:digit:]]]*') <> 'DocumentId' or T.COLUMN1 <> null
     )
     loop
-      if (rec.DocumentId is not null) then
-        l_elinvobject := get_elinvobject(ncompany, rec.DocumentId, rec.ItemSku);
+      if (REC.DocumentId is not null) then
+        /* считывание записи */
+        begin
+          select T.*
+            into rELINVOBJECT
+            from ELINVOBJECT T
+                  left join INVPACK P 
+                    left join INVPACKPOS PS on PS.PRN = P.RN
+                  on P.RN = T.INVPACK
+                  left join INVSUBST U on U.RN = T.INVSUBST,
+                INVENTORY I
+          where T.COMPANY = nCOMPANY
+            and T.PRN = REC.DocumentId
+            and T.INVENTORY = I.RN
+            and decode(PS.RN, null, decode(T.INVPACK, null, decode(T.INVSUBST, null, I.BARCODE, U.BARCODE), P.BARCODE), PS.BARCODE) = REC.ItemSku;
+        exception
+          when OTHERS then
+            PKG_STATE.DIAGNOSTICS_STACKED;
+            P_EXCEPTION(0, 'Ошибка определения записи электронной инвентаризации "%s".', PKG_STATE.SQL_ERRT(PKG_STATE.SQL_CODE(), PKG_STATE.SQL_ERRM()));
+        end;
 
-        find_invpersons_code(1, 1, ncompany, rec.InventoringPerson, l_invperson_rn);
+        FIND_INVPERSONS_CODE(1, 1, nCOMPANY, REC.InventoringPerson, nINVPERSONS);
 
-        if (l_invperson_rn is null) then
-          p_msgjournal_base_insert(nident, 1, 'Инвентаризирующее лицо "' || rec.InventoringPerson || '" не найдено в организации "' || l_company || '".', l_rn);
+        if (nINVPERSONS is null) then
+          P_MSGJOURNAL_BASE_INSERT(nIDENT, 1, 'Инвентаризирующее лицо "' || REC.InventoringPerson || '" не найдено в организации "' || sCOMPANY_NAME || '".', nRN);
         end if;
 
-        p_elinvobject_base_update
+        P_ELINVOBJECT_BASE_UPDATE
         (
-          ncompany      => ncompany,
-          nrn           => l_elinvobject.rn,
-          dunload_date  => l_elinvobject.unload_date,
-          dinv_date     => to_date(rec.DateTimeOfInventory, 'yyyymmdd hh24miss'),
-          ninvpersons   => l_invperson_rn,
-          sbarcode      => rec.ActualLocationSku,
-          nis_loaded    => 0
+          nCOMPANY      => nCOMPANY,
+          nRN           => rELINVOBJECT.rn,
+          dUNLOAD_DATE  => rELINVOBJECT.unload_date,
+          dINV_DATE     => to_date(REC.DateTimeOfInventory, 'yyyymmdd hh24miss'),
+          nINVPERSONS   => nINVPERSONS,
+          sBARCODE      => REC.ActualLocationSku,
+          nIS_LOADED    => 0,
+          sRFID         => null
         );
       end if;
     end loop;
@@ -82,6 +72,6 @@ begin
 end;
 /
 
-show errors procedure p_belinventory_csvimp;
+show errors procedure P_BELINVENTORY_CSVIMP;
 
-grant execute on p_belinventory_csvimp to public;
+grant execute on P_BELINVENTORY_CSVIMP to PUBLIC;

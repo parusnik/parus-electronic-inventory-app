@@ -1,36 +1,30 @@
-create or replace procedure p_beldicplace_gen_barcode
+create or replace procedure P_BELDICPLACE_GEN_BARCODE
 (
-  ncompany      in number,
-  nident        in number,
-  sunitcode     in varchar2
+  nCOMPANY          in number,
+  nIDENT            in number
 )
 as
-  l_barcode     dicplace.barcode%type;
+  sBARCODE          DICPLACE.BARCODE%type;
 begin
-  if (sunitcode != 'ObjPlace') then
-    p_exception(0, 'Данная процедура предназначена для раздела "Местонахождение инвентарных объектов".');
-  end if;
-
-  for rec in 
+  for REC in 
   (
-    select t.rn
-      from selectlist sl, dicplace t
-     where sl.ident = nident
-       and sl.company = ncompany
-       and sl.unitcode = sunitcode
-       and t.rn = sl.document
-       and t.barcode is null
+    select T.RN
+      from SELECTLIST SL, DICPLACE T
+     where SL.IDENT = nIDENT
+       and SL.COMPANY = nCOMPANY
+       and T.RN = SL.DOCUMENT
+       and T.BARCODE is null
   ) 
   loop
-    l_barcode := gen_barcode_ex;
+    sBARCODE := GEN_BARCODE_EX;
 
-    update dicplace
-       set barcode = l_barcode
-     where rn = rec.rn;
+    update DICPLACE
+       set BARCODE = sBARCODE
+     where RN = REC.RN;
   end loop;
 end;
 /
 
-show errors procedure p_beldicplace_gen_barcode;
+show errors procedure P_BELDICPLACE_GEN_BARCODE;
 
-grant execute on p_beldicplace_gen_barcode to public;
+grant execute on P_BELDICPLACE_GEN_BARCODE to PUBLIC;
