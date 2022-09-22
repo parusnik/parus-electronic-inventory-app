@@ -1,51 +1,52 @@
-create or replace procedure p_belinvpersons_csvexp
+create or replace procedure P_BELINVPERSONS_CSVEXP
 (
-  ncompany      in number,
-  nident        in number
+  nCOMPANY          in number,
+  nIDENT            in number,
+  nPROCESS          in number
 )
 as
-  l_headers     pkg_std.tstring;
-  l_row         pkg_std.tlstring;
-  l_content     clob;
-  l_filename    pkg_std.tstring;
+  sHEADERS          PKG_STD.tSTRING;
+  sROW              PKG_STD.tLSTRING;
+  cCONTENT          clob;
+  sFILENAME         PKG_STD.tSTRING;
 begin
-  dbms_lob.createtemporary(l_content, true);
+  dbms_lob.createtemporary(cCONTENT, true);
 
-  l_headers := 'UserName;FirstName;LastName;Password;' || cr;
-  dbms_lob.writeappend(l_content, length(l_headers), l_headers);
+  sHEADERS := 'UserName;FirstName;LastName;Password;' || CR;
+  dbms_lob.writeappend(cCONTENT, length(sHEADERS), sHEADERS);
 
-  for rec in 
+  for REC in 
   (
-    select convert(a.agnabbr, 'UTF8', 'CL8MSWIN1251')        as UserName,
-           convert(a.agnfirstname, 'UTF8', 'CL8MSWIN1251')   as FirstName,
-           convert(a.agnfamilyname, 'UTF8', 'CL8MSWIN1251')  as LastName,
-           convert(t.password, 'UTF8', 'CL8MSWIN1251')       as Password
-      from invpersons t,
-           agnlist a,
-           selectlist sl
-     where sl.ident = nident
-       and sl.unitcode = 'InventoryPersons'
-       and t.rn = sl.document
-       and t.company = ncompany
-       and a.rn = t.agnlist
+    select A.AGNABBR        as UserName,
+           A.AGNFIRSTNAME   as FirstName,
+           A.AGNFAMILYNAME  as LastName,
+           T.PASSWORD       as Password
+      from INVPERSONS T,
+           AGNLIST A,
+           SELECTLIST SL
+     where SL.IDENT = nIDENT
+       and SL.UNITCODE = 'InventoryPersons'
+       and T.RN = SL.DOCUMENT
+       and T.COMPANY = nCOMPANY
+       and A.RN = T.AGNLIST
   ) 
   loop
-    l_row := rec.UserName || ';' || rec.FirstName || ';' || rec.LastName || ';' || rec.Password || ';' || cr;
-    dbms_lob.writeappend(l_content, length(l_row), l_row);
+    sROW := REC.UserName || ';' || REC.FirstName || ';' || REC.LastName || ';' || REC.Password || ';' || CR;
+    dbms_lob.writeappend(cCONTENT, length(sROW), sROW);
   end loop;
 
-  l_filename := 'Persons.csv';
+  sFILENAME := 'Persons.csv';
 
-  insert into file_buffer (ident, authid, filename, data)
-  values (nident, utilizer, l_filename, l_content);
+  insert into FILE_BUFFER (IDENT, FILENAME, DATA)
+  values (nPROCESS, sFILENAME, cCONTENT);
 
-  dbms_lob.freetemporary(l_content);
+  dbms_lob.freetemporary(cCONTENT);
 exception
-  when others then
-    dbms_lob.freetemporary(l_content);
+  when OTHERS then
+    dbms_lob.freetemporary(cCONTENT);
 end;
 /
 
-show errors procedure p_belinvpersons_csvexp;
+show errors procedure P_BELINVPERSONS_CSVEXP;
 
-grant execute on p_belinvpersons_csvexp to public;
+grant execute on P_BELINVPERSONS_CSVEXP to PUBLIC;
