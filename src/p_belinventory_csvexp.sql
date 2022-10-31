@@ -66,8 +66,8 @@ begin
 
   sFILENAME := 'Objects.csv';
 
-  insert into FILE_BUFFER (IDENT, FILENAME, DATA)
-  values (nPROCESS, sFILENAME, cCONTENT);
+  insert into FILE_BUFFER (IDENT, FILENAME, BDATA)
+  values (nPROCESS, sFILENAME, CLOB2BLOB(cCONTENT));
 
   dbms_lob.freetemporary(cCONTENT);
 exception
