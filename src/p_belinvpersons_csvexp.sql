@@ -1,49 +1,43 @@
 create or replace procedure P_BELINVPERSONS_CSVEXP
 (
-  nCOMPANY          in number,
-  nIDENT            in number,
-  nPROCESS          in number
+    nCOMPANY                in number,
+    nIDENT                  in number,
+    nPROCESS                in number
 )
 as
-  sHEADERS          PKG_STD.tSTRING;
-  sROW              PKG_STD.tLSTRING;
-  cCONTENT          clob;
-  sFILENAME         PKG_STD.tSTRING;
+    sFILENAME               PKG_STD.tSTRING;
 begin
-  dbms_lob.createtemporary(cCONTENT, true);
+    sFILENAME := 'Persons.csv';
 
-  sHEADERS := 'UserName;FirstName;LastName;Password;' || CR;
-  dbms_lob.writeappend(cCONTENT, length(sHEADERS), sHEADERS);
+    PKG_CLOB.PROLOGUE('P_BELINVPERSONS_CSVEXP', 'cINVPERS');
+    PKG_CLOB.WRITE('P_BELINVPERSONS_CSVEXP', 'cINVPERS', 'UserName;FirstName;LastName;Password;;' || CR);
 
-  for REC in 
-  (
-    select A.AGNABBR        as UserName,
-           A.AGNFIRSTNAME   as FirstName,
-           A.AGNFAMILYNAME  as LastName,
-           T.PASSWORD       as Password
-      from INVPERSONS T,
-           AGNLIST A,
-           SELECTLIST SL
-     where SL.IDENT = nIDENT
-       and SL.UNITCODE = 'InventoryPersons'
-       and T.RN = SL.DOCUMENT
-       and T.COMPANY = nCOMPANY
-       and A.RN = T.AGNLIST
-  ) 
-  loop
-    sROW := REC.UserName || ';' || REC.FirstName || ';' || REC.LastName || ';' || REC.Password || ';' || CR;
-    dbms_lob.writeappend(cCONTENT, length(sROW), sROW);
-  end loop;
+    for rec in 
+    (
+        select A.AGNABBR        as UserName,
+               A.AGNFIRSTNAME   as FirstName,
+               A.AGNFAMILYNAME  as LastName,
+               T.PASSWORD       as Password
+          from INVPERSONS T,
+               AGNLIST A,
+               SELECTLIST SL
+         where SL.IDENT = nIDENT
+           and SL.UNITCODE = 'InventoryPersons'
+           and T.RN = SL.DOCUMENT
+           and T.COMPANY = nCOMPANY
+           and A.RN = T.AGNLIST
+    ) 
+    loop
+        PKG_CLOB.WRITE('P_BELINVPERSONS_CSVEXP', 'cINVPERS', rec.UserName || ';' || rec.FirstName || ';' || rec.LastName || ';' || rec.Password || ';' || CR);
+    end loop;
 
-  sFILENAME := 'Persons.csv';
 
-  insert into FILE_BUFFER (IDENT, FILENAME, BDATA)
-  values (nPROCESS, sFILENAME, CLOB2BLOB(cCONTENT));
+    insert into FILE_BUFFER (IDENT, FILENAME, BDATA)
+        values (nPROCESS, sFILENAME, PKG_CLOB.SERIALIZE_TO_BLOB('P_BELINVPERSONS_CSVEXP', 'cINVPERS', PKG_CHARSET.CHARSET_UTF_));
 
-  dbms_lob.freetemporary(cCONTENT);
 exception
-  when OTHERS then
-    dbms_lob.freetemporary(cCONTENT);
+    when OTHERS then
+        PKG_CLOB.EPILOGUE('P_BELINVPERSONS_CSVEXP');
 end;
 /
 

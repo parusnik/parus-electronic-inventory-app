@@ -14,7 +14,7 @@ BEGIN
     scompany_name := get_company_name(0::numeric, ncompany);
 
     FOR file IN
-        SELECT "DATA" FROM file_buffer WHERE ident = nident
+        SELECT parus.blob2clob(bdata, pkg_charset$charset_win_) AS "DATA" FROM file_buffer WHERE ident = nident
     LOOP
         FOR line IN
             SELECT regexp_replace(t.c[1], '[^[[:digit:]]]*')::numeric   AS documentid,
