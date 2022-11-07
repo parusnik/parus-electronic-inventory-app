@@ -33,7 +33,7 @@ begin
 
     begin
         PKG_CLOB.PROLOGUE('P_BELDICPLACE_CSVEXP', 'cPLACES');
-        PKG_CLOB.WRITE('P_BELDICPLACE_CSVEXP', 'PLACES', 'DocumentId;LocationName;LocationSku;' || CR);
+        PKG_CLOB.WRITE('P_BELDICPLACE_CSVEXP', 'cPLACES', 'DocumentId;LocationName;LocationSku;' || CR);
 
 
         for rec in 
