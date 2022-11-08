@@ -156,7 +156,7 @@ begin
                         end if;
                     end if;
 
-                    PRSG_EXCEL.CELL_VALUE_WRITE(L3_NAME1, 0, iLINE_IDX3, trim(spec.NOMEN_CODE) || cr || trim(spec.INV_NUMBER) || cr || trim(spec.JUR_PERS));
+                    PRSG_EXCEL.CELL_VALUE_WRITE(L3_NAME1, 0, iLINE_IDX3, trim(spec.NOMEN_CODE));
                     PRSG_EXCEL.CELL_VALUE_WRITE(L3_CODE1, 0, iLINE_IDX3, spec.SKU);
                     PRSG_EXCEL.CELL_VALUE_WRITE(L3_SKU1, 0, iLINE_IDX3, PKG_BARCODE.ENCODE128(spec.SKU));
 
