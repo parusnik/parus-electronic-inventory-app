@@ -12,7 +12,7 @@
 * [Местонахождение инвентарных объектов: Сгенерировать штрих-код](src/p_beldicplace_gen_barcode.sql)
 * [Местонахождение инвентарных объектов: Экспорт в Parus Smart Inventory](src/p_beldicplace_csvexp.sql)
 * [Инвентаризирующие лица: Экспорт в Parus Smart Inventory](src/p_belinvpersons_csvexp.sql)
-* [Инвентарные объекты: Экспорт в Parus Smart Inventory](src/p_belinventory_csvexp.sql)
+* [Электронные инвентаризации: Экспорт в Parus Smart Inventory](src/p_belinventory_csvexp.sql)
 * [Электронные инвентаризации: Импорт из Parus Smart Inventory](src/p_belinventory_csvimp.sql)
 * [Электронные инвентаризации: Импорт из Parus Smart Inventory (Postgres)](src/p_belinventory_csvimp.pgsql)
 
