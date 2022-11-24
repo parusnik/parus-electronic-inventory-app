@@ -13,7 +13,7 @@ begin
 
     for file in 
     (
-        select BLOB2CLOB(BDATA, PKG_CHARSET.CHARSET_WIN_) as DATA from FILE_BUFFER where IDENT = nIDENT
+        select BLOB2CLOB(BDATA, PKG_CHARSET.CHARSET_UTF_) as DATA from FILE_BUFFER where IDENT = nIDENT
     ) 
     loop
         for rec in 
