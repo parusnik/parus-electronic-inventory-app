@@ -53,7 +53,9 @@ BEGIN
                 ninvpersons := find_invpersons_code(1::numeric, 1::numeric, ncompany, line.inventoringperson);
 
                 IF (ninvpersons IS NULL) THEN
-                    nrn := p_msgjournal_base_insert(nident, 1::numeric, format('Инвентаризирующее лицо "%s" не найдено в организации "%s".', line.inventoringperson, scompany_name));
+                    IF (rtrim(line.inventoringperson) IS NOT NULL) THEN
+                        nrn := p_msgjournal_base_insert(nident, 1::numeric, format('Инвентаризирующее лицо "%s" не найдено в организации "%s".', line.inventoringperson, scompany_name));
+                    END IF;
                 END IF;
 
                 PERFORM p_elinvobject_base_update(ncompany, relinvobject.rn, relinvobject.unload_date, to_date(line.datetimeofinventory, 'yyyymmdd hh24miss'::character varying),

@@ -52,7 +52,9 @@ begin
                 FIND_INVPERSONS_CODE(1, 1, nCOMPANY, rec.INVENTORINGPERSON, nINVPERSONS);
 
                 if (nINVPERSONS is null) then
-                    P_MSGJOURNAL_BASE_INSERT(nIDENT, 1, 'Инвентаризирующее лицо "' || rec.INVENTORINGPERSON || '" не найдено в организации "' || sCOMPANY_NAME || '".', nRN);
+                    if (rtrim(rec.INVENTORINGPERSON) is not null) then
+                        P_MSGJOURNAL_BASE_INSERT(nIDENT, 1, 'Инвентаризирующее лицо "' || rec.INVENTORINGPERSON || '" не найдено в организации "' || sCOMPANY_NAME || '".', nRN);
+                    end if;
                 end if;
 
                 P_ELINVOBJECT_BASE_UPDATE
